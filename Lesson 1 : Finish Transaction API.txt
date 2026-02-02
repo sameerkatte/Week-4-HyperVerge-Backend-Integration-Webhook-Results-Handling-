@@ -1,0 +1,32 @@
+The presentation covered the structure of finished transaction APIs and the debugging process for common issues. Key points include:
+System Architecture Overview:
+SDK calls GKYC API.
+GKYC API stores data on s3 and communicates with the audit portal backend.
+Audit portal backend processes the FT call.
+Data is passed to the Generic webhook service, which updates the client.
+API Workflow:
+The SDK initiates the finished transaction API call.
+Includes debug info, user details, transaction ID, request IDs, status to be updated along with additional other information.
+The audit portal backend syncs data from various services (e.g., liveness, face match, OCR) via S3.
+Ensures all request IDs are synced before updating status until which the application remains in “KYC in progress”.
+Debugging Common Issues:
+Missing Request IDs:
+Check if all request IDs in the finished transaction API call are synced.
+Identify missing request IDs to find which service did not sync data.
+Verify if "enable dashboard" is set to true in the API body or central config.
+Investigate the corresponding service if data is not synced.
+KYC Status Issues:
+Application statuses transition through different stages (started, KYC in progress, auto-approved/rejected).
+Clients should wait for the webhook trigger before calling the results API to ensure all data is available.
+Handling Edge Cases:
+Network errors, SDK crashes, or token expiry can prevent the finished transaction API call from completing.
+Retry mechanisms in newer SDK versions mitigate some issues.
+Debug info in the API call helps in identifying and resolving errors.
+API Status Updates:
+The audit portal backend updates the status in its database.
+Statuses remain consistent based on the latest finished transaction API call.
+Manual review updates affect the status seen by clients.
+Key Takeaways:
+Ensuring all services sync data properly is crucial for accurate status updates.
+Proper configuration and handling of edge cases can prevent common issues.
+Debug information and understanding the API workflow are essential for effective troubleshooting.

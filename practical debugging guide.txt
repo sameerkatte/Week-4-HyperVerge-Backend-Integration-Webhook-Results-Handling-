@@ -1,0 +1,125 @@
+1. Client HV has reported an issue where the status for a transaction is stuck in `kyc in progress` on case management dashboard. Debug the root cause for this.
+    
+    App ID: `55a3a6` 
+    
+    Transaction ID: `ft-debug-test-1` 
+    
+2. Client HV has reported an issue where the user went through a journey and was successfully completed. They completed all the modules and were auto approved and the same is reflected on case management and results API as well but they are receiving  incomplete information in the results API response.
+    - Results API Response
+        
+        ```jsx
+        {
+            "status": "success",
+            "statusCode": 200,
+            "metadata": {
+                "requestId": "1721832709099-3b301ae3-5ffc-4972-a829-e59c07cd6809",
+                "transactionId": "ft-debug-test-2"
+            },
+            "result": {
+                "applicationStatus": "auto_approved",
+                "results": [
+                    {
+                        "module": "",
+                        "countrySelected": "ind",
+                        "apiResponse": {
+                            "status": "failure",
+                            "statusCode": 400,
+                            "metadata": {
+                                "requestId": "1721832454841-e92813a4-2c78-4524-9ac6-474f4eaaf309",
+                                "transactionId": "ft-debug-test-2"
+                            },
+                            "result": {
+                                "error": "API call requires at least one input image",
+                                "summary": {
+                                    "action": "fail",
+                                    "details": [
+                                        {
+                                            "code": "111",
+                                            "message": "Bad Request. Please refer the documentation"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "attempts": "3",
+                        "previousAttempts": [
+                            {
+                                "module": "",
+                                "countrySelected": "ind",
+                                "documentSelected": "pan",
+                                "apiResponse": {
+                                    "status": "failure",
+                                    "statusCode": 400,
+                                    "metadata": {
+                                        "requestId": "1721832440939-c26c28ab-df93-4936-9257-0b3f987de247",
+                                        "transactionId": "ft-debug-test-2"
+                                    },
+                                    "result": {
+                                        "error": "API call requires at least one input image",
+                                        "summary": {
+                                            "action": "fail",
+                                            "details": [
+                                                {
+                                                    "code": "111",
+                                                    "message": "Bad Request. Please refer the documentation"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "attempts": "1"
+                            },
+                            {
+                                "module": "",
+                                "apiResponse": {
+                                    "status": "failure",
+                                    "statusCode": 400,
+                                    "metadata": {
+                                        "requestId": "1721832451349-15c9c404-0f5a-42a7-9ff8-5e65ebb8dc3c",
+                                        "transactionId": "ft-debug-test-2"
+                                    },
+                                    "result": {
+                                        "error": "API call requires at least one input image",
+                                        "summary": {
+                                            "action": "fail",
+                                            "details": [
+                                                {
+                                                    "code": "111",
+                                                    "message": "Bad Request. Please refer the documentation"
+                                                }
+                                            ]
+                                        },
+                                        "inputImageUrls": {}
+                                    }
+                                },
+                                "attempts": "2"
+                            }
+                        ]
+                    }
+                ],
+                "userDetails": {
+                    "name": "FT debugging",
+                    "issue": "Missing value in the user details object in results API",
+                    "reason": ""
+                }
+            }
+        }
+        ```
+        
+    
+    App ID: `55a3a6`
+    Transaction ID: `ft-debug-test-2` 
+    Issue: Data missing for key `reason`
+    
+    How do you debug this? 
+    
+3. Client HV has reported yet another issue. They have a very simple flow where the OCR on PAN card is done and the user completed the journey and got approved. They received auto approved status from SDK and from results API initially. But they then opened case management and saw the status was user cancelled instead. They thought case management is incorrect and called results API. To their surprise, it is also returning the status as user cancelled. How would you debug this? What can be the possible reasons for it?
+    
+    App ID: `55a3a6`
+    Transaction ID: `ft-debug-test-3` 
+    
+4. Client HV’s issues never end. They are back with another issue. User completed the journey but the updated status does not reflect on the case management or results API. Can you help them why this happened?
+    
+    App ID: `55a3a6`
+    
+    Transaction ID: `ft-debug-test-5`

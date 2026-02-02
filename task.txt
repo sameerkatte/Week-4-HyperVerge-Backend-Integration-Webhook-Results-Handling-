@@ -1,0 +1,104 @@
+Task: HyperVerge Backend Integration (Webhook + Results Handling)
+📚 Important Resources
+KT Video (Recorded by Co-founder)
+https://drive.google.com/file/d/1kWGT6cuwNQ3dqB9RWR5r1IdTF4r9zD8i/view?usp=sharing
+
+Implementation Document
+https://docs.google.com/document/d/1-f9-gqzpXktuMjBwf8opyj70kobzk8uw_r9GyWG916Q/edit?usp=sharing
+
+Practical Debugging Guide
+https://www.notion.so/Practical-Debugging-f3a28b8190e742bbb4a3cafd839e43ee?pvs=21
+
+🎯 Objective
+Build a backend server that:
+
+Generates SDK auth tokens
+
+Receives HyperVerge webhook events
+
+Fetches transaction logs and final outputs from HV APIs
+
+🌐 Step 1: Set Up a Public Backend Server
+Your server must be publicly accessible so HyperVerge can send webhook events.
+
+Choose one:
+
+Option A — Local + Ngrok
+Run backend locally
+
+Use Ngrok to expose a public HTTPS URL
+
+Option B — Cloud Deployment
+Deploy backend on AWS / GCP / Azure / etc.
+
+Expose a public HTTPS endpoint
+
+🛠 Backend API Requirements
+1️⃣ Auth API
+Endpoint GET /auth 
+
+Purpose
+Generates a short-lived HyperVerge auth token for SDK initialization.
+
+Requirements
+Call HV authentication API to generate expiring token
+
+Token validity must be 30 minutes
+
+Return token in response to frontend
+
+📖 Ref:
+https://documentation.hyperverge.co/other-resources/authentication#method-2---using-expiring-tokens
+
+2️⃣ Results Webhook Listener
+Endpoint POST /results
+
+Purpose
+Receives webhook event from HyperVerge after a transaction is completed.
+
+Flow
+Configure this endpoint as your HV Webhook URL
+
+HV backend will send a POST request when SDK flow finishes
+
+Extract transactionId (trxnId) from webhook payload
+
+Call HV Results (Logs) API using this transaction ID
+https://documentation.hyperverge.co/accessing-results/results-api
+
+Store or log the response (recommended)
+
+Respond back to HV with HTTP 200 OK
+
+3️⃣ Outputs Fetch API
+Endpoint POST /outputs 
+
+Purpose
+Allows frontend to fetch final processed outputs after SDK completion.
+
+Flow
+Frontend → Backend
+
+Sends transactionId in request body
+
+Backend Steps
+
+Receive transaction ID
+
+Call HV Results (Logs) API
+
+Call HV Outputs API
+https://documentation.hyperverge.co/accessing-results/output_api
+
+Return Outputs API response to frontend
+
+🧠 Functional Understanding
+🔹 Results Webhook
+A notification from HV backend informing your server that a transaction has completed. It contains the transaction reference, not full results.
+
+🔹 Results API (Logs API)
+Used after webhook reception to fetch transaction processing details and logs.
+
+🔹 Outputs API
+Provides the final KYC outputs, extracted data, and verification decisions.
+
