@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -10,7 +11,9 @@ const logger = require('./utils/logger');
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false // Disable CSP to allow external SDK loading
+}));
 
 app.use(cors({
   origin: config.security.corsOrigin,
@@ -29,6 +32,14 @@ app.use(morgan('combined', {
     write: (message) => logger.info(message.trim())
   }
 }));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Root route - serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 app.use('/api', routes);
 

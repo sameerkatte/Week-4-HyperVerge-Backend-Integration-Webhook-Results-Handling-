@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperKYC Web SDK Integration</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- HyperVerge Web SDK - Latest Version 10.0.0 -->
+    <script src="https://hv-web-sdk-cdn.hyperverge.co/hyperverge-web-sdk@10.0.0/src/sdk.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>HyperKYC Verification</h1>
+            <p class="subtitle">Complete your KYC verification securely</p>
+        </header>
+
+        <!-- Name Input Modal -->
+        <div id="nameModal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <h3>Enter Your Details</h3>
+                <p class="modal-subtitle">Please provide your name to begin verification</p>
+                <form id="name-form">
+                    <div class="modal-input-group">
+                        <label for="userNameModal">Full Name</label>
+                        <input
+                            type="text"
+                            id="userNameModal"
+                            placeholder="Enter your full name"
+                            required
+                            autocomplete="name"
+                        />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelNameBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" id="submitNameBtn" class="btn btn-primary">Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="setup-section" class="section">
+                <h2>Configuration</h2>
+                <form id="config-form">
+                    <div class="form-group">
+                        <label for="workflowId">Workflow ID:</label>
+                        <input
+                            type="text"
+                            id="workflowId"
+                            value="VnmpFS_27_01_26_14_20_06"
+                            placeholder="Enter Workflow ID"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="backendUrl">Backend URL:</label>
+                        <input
+                            type="text"
+                            id="backendUrl"
+                            value="https://quaquaversal-battlemented-clarine.ngrok-free.dev"
+                            placeholder="Enter Backend URL"
+                            required
+                        />
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Use ngrok URL for webhooks to work. Switch to http://localhost:3000 for local-only testing.
+                        </small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showLandingPage" checked />
+                            Show Landing Page
+                        </label>
+                    </div>
+
+                    <button type="submit" id="launchBtn" class="btn btn-primary">
+                        Start KYC Verification
+                    </button>
+                </form>
+            </div>
+
+            <div id="loading-section" class="section hidden">
+                <div class="loader"></div>
+                <p>Initializing SDK...</p>
+            </div>
+
+            <div id="result-section" class="section hidden">
+                <div id="result-content"></div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>Network Inspection Instructions</h3>
+            <ol>
+                <li>Open Browser DevTools (F12 or Right-click → Inspect)</li>
+                <li>Navigate to the <strong>Network</strong> tab</li>
+                <li>Click "Start KYC Verification" and complete the flow</li>
+                <li>Observe all API calls from start to end:
+                    <ul>
+                        <li>Auth token generation</li>
+                        <li>SDK initialization</li>
+                        <li>Document capture & upload</li>
+                        <li>Face capture & liveness</li>
+                        <li>Verification results</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="debug-panel">
+            <h3>Debug Console</h3>
+            <div id="debug-log" class="debug-log"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
