@@ -1,12 +1,13 @@
 const HttpClient = require('../utils/httpClient');
 const logger = require('../utils/logger');
 const config = require('../config/env');
-const { HYPERVERGE_API, HTTP_STATUS, ERROR_CODES } = require('../config/constants');
+const { HYPERVERGE_API, HYPERVERGE_AUTH_BASE_URL, HTTP_STATUS, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middleware/errorHandler');
 
 class HyperVergeService {
   constructor() {
     this.client = new HttpClient(config.hyperverge.apiBaseUrl);
+    this.authClient = new HttpClient(HYPERVERGE_AUTH_BASE_URL);
     this.tokenCache = {
       token: null,
       expiresAt: null
@@ -22,12 +23,14 @@ class HyperVergeService {
 
       logger.info('Generating new HyperVerge auth token');
 
-      const response = await this.client.post(
+      const expirySeconds = config.auth.tokenValidityMinutes * 60;
+
+      const response = await this.authClient.post(
         HYPERVERGE_API.AUTH_TOKEN,
         {
           appId: config.hyperverge.appId,
           appKey: config.hyperverge.appKey,
-          expiryTime: config.auth.tokenValidityMinutes
+          expiry: expirySeconds
         }
       );
 
@@ -119,13 +122,16 @@ class HyperVergeService {
     }
   }
 
-  async getTransactionOutputs(transactionId) {
+  async getTransactionOutputs(transactionId, workflowId) {
     try {
-      logger.info('Fetching transaction outputs', { transactionId });
+      logger.info('Fetching transaction outputs', { transactionId, workflowId });
 
       const response = await this.client.post(
         HYPERVERGE_API.OUTPUTS,
-        { transactionId },
+        {
+          transactionId,
+          workflowId
+        },
         {
           headers: {
             appId: config.hyperverge.appId,
@@ -143,6 +149,7 @@ class HyperVergeService {
     } catch (error) {
       logger.error('Failed to fetch transaction outputs', {
         transactionId,
+        workflowId,
         message: error.message,
         response: error.response?.data
       });

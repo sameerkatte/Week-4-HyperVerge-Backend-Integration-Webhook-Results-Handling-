@@ -1,8 +1,10 @@
 const HYPERVERGE_API = {
-  AUTH_TOKEN: '/v1/auth/token',
+  AUTH_TOKEN: '/login',
   RESULTS_LOGS: '/v1/link-kyc/results',
   OUTPUTS: '/v1/output'
 };
+
+const HYPERVERGE_AUTH_BASE_URL = 'https://auth.hyperverge.co';
 
 const WEBHOOK_EVENTS = {
   FINISH_TRANSACTION: 'FINISH_TRANSACTION_WEBHOOK'
@@ -32,6 +34,7 @@ const HTTP_STATUS = {
 
 module.exports = {
   HYPERVERGE_API,
+  HYPERVERGE_AUTH_BASE_URL,
   WEBHOOK_EVENTS,
   ERROR_CODES,
   HTTP_STATUS

@@ -102,3 +102,12 @@ Used after webhook reception to fetch transaction processing details and logs.
 🔹 Outputs API
 Provides the final KYC outputs, extracted data, and verification decisions.
 
+
+HyperKYC Web SDK
+Integrate the Web SDK and launch the workflow created
+
+Based on final status, display corresponding message to user
+
+Inspect the Network tab from the browser - Start to end of the flow
+
+

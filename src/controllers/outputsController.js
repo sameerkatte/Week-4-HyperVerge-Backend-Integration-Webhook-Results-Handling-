@@ -7,10 +7,15 @@ const getOutputs = asyncHandler(async (req, res) => {
 
   logger.info('Outputs requested', { transactionId });
 
-  const [logsData, outputsData] = await Promise.all([
-    hypervergeService.getTransactionLogs(transactionId),
-    hypervergeService.getTransactionOutputs(transactionId)
-  ]);
+  const logsData = await hypervergeService.getTransactionLogs(transactionId);
+
+  const workflowId = logsData?.result?.workflowId || logsData?.workflowId;
+
+  if (!workflowId) {
+    logger.warn('WorkflowId not found in logs response, calling outputs API without it', { transactionId });
+  }
+
+  const outputsData = await hypervergeService.getTransactionOutputs(transactionId, workflowId);
 
   logger.info('Outputs fetched successfully', { transactionId });
 
@@ -18,6 +23,7 @@ const getOutputs = asyncHandler(async (req, res) => {
     success: true,
     data: {
       transactionId,
+      workflowId,
       logs: logsData,
       outputs: outputsData
     }
