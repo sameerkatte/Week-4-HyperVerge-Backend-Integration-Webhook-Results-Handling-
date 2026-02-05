@@ -50,7 +50,7 @@ const resultContent = document.getElementById('result-content');
 const launchBtn = document.getElementById('launchBtn');
 const nameModal = document.getElementById('nameModal');
 const nameForm = document.getElementById('name-form');
-const userNameModalInput = document.getElementById('userNameModal');
+const nameInput = document.getElementById('nameInput');
 const cancelNameBtn = document.getElementById('cancelNameBtn');
 const submitNameBtn = document.getElementById('submitNameBtn');
 
@@ -117,14 +117,14 @@ function showSetup() {
 // Show name modal
 function showNameModal() {
     nameModal.classList.remove('hidden');
-    userNameModalInput.value = '';
-    userNameModalInput.focus();
+    nameInput.value = '';
+    nameInput.focus();
 }
 
 // Hide name modal
 function hideNameModal() {
     nameModal.classList.add('hidden');
-    userNameModalInput.value = '';
+    nameInput.value = '';
 }
 
 // Handle SDK Result Callback
@@ -264,7 +264,7 @@ async function launchHyperKYC(workflowId, backendUrl, showLandingPage, userName)
         logger.info(`Workflow ID: ${workflowId}`);
         logger.info(`Backend URL: ${backendUrl}`);
         logger.info(`Show Landing Page: ${showLandingPage}`);
-        logger.info(`User Name: ${userName}`);
+        logger.info(`Name: ${userName}`);
 
         // Generate unique transaction ID
         const transactionId = generateTransactionId();
@@ -287,7 +287,7 @@ async function launchHyperKYC(workflowId, backendUrl, showLandingPage, userName)
         // Set workflow inputs (required by workflow configuration)
         logger.info('Setting workflow inputs...');
         hyperKycConfig.setInputs({
-            userName: userName
+            Name: userName
         });
         logger.success('Workflow inputs set successfully');
 
@@ -351,7 +351,7 @@ configForm.addEventListener('submit', async (e) => {
 nameForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const userName = userNameModalInput.value.trim();
+    const userName = nameInput.value.trim();
 
     if (!userName) {
         alert('Please enter your name');

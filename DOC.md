@@ -175,7 +175,7 @@ hyperverge-backend/
 │   │   ├── validateRequest.js      # Input validation middleware
 │   │   └── rateLimiter.js          # Rate limiting configurations
 │   │
-│   ├── services/                    # Service Layer (Business Logic)
+│   ├── services/                     # Service Layer (Business Logic)
 │   │   └── hypervergeService.js    # HyperVerge API integration
 │   │
 │   ├── controllers/                 # Controller Layer (Request Handlers)
