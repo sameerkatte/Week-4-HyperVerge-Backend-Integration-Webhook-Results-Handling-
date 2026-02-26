@@ -48,11 +48,11 @@ const loadingSection = document.getElementById('loading-section');
 const resultSection = document.getElementById('result-section');
 const resultContent = document.getElementById('result-content');
 const launchBtn = document.getElementById('launchBtn');
-const nameModal = document.getElementById('nameModal');
-const nameForm = document.getElementById('name-form');
-const nameInput = document.getElementById('nameInput');
-const cancelNameBtn = document.getElementById('cancelNameBtn');
-const submitNameBtn = document.getElementById('submitNameBtn');
+const inputsModal = document.getElementById('inputsModal');
+const inputsForm = document.getElementById('inputs-form');
+const inputsContainer = document.getElementById('inputsContainer');
+const addInputBtn = document.getElementById('addInputBtn');
+const cancelInputsBtn = document.getElementById('cancelInputsBtn');
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -60,11 +60,11 @@ function generateTransactionId() {
 }
 
 // Fetch auth token from backend
-async function fetchAuthToken(backendUrl) {
+async function fetchAuthToken() {
     try {
-        logger.info(`Fetching auth token from: ${backendUrl}/api/auth`);
+        logger.info(`Fetching auth token from: /api/auth`);
 
-        const response = await fetch(`${backendUrl}/api/auth`, {
+        const response = await fetch(`/api/auth`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -114,17 +114,50 @@ function showSetup() {
     resultSection.classList.add('hidden');
 }
 
-// Show name modal
-function showNameModal() {
-    nameModal.classList.remove('hidden');
-    nameInput.value = '';
-    nameInput.focus();
+// Show inputs modal
+function showInputsModal() {
+    inputsModal.classList.remove('hidden');
+    // Focus the first key field
+    const firstKey = inputsContainer.querySelector('.input-key');
+    if (firstKey) firstKey.focus();
 }
 
-// Hide name modal
-function hideNameModal() {
-    nameModal.classList.add('hidden');
-    nameInput.value = '';
+// Hide inputs modal
+function hideInputsModal() {
+    inputsModal.classList.add('hidden');
+}
+
+// Add a new input row
+function addInputRow() {
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    row.innerHTML = `
+        <input type="text" class="input-key" placeholder="Key" required />
+        <input type="text" class="input-value" placeholder="Value" required />
+        <button type="button" class="btn-remove" title="Remove">&times;</button>
+    `;
+    inputsContainer.appendChild(row);
+    row.querySelector('.input-key').focus();
+}
+
+// Remove an input row (keep at least one)
+function removeInputRow(btn) {
+    if (inputsContainer.querySelectorAll('.input-row').length > 1) {
+        btn.closest('.input-row').remove();
+    }
+}
+
+// Collect all input key-value pairs into an object
+function collectInputs() {
+    const inputs = {};
+    inputsContainer.querySelectorAll('.input-row').forEach(row => {
+        const key = row.querySelector('.input-key').value.trim();
+        const value = row.querySelector('.input-value').value.trim();
+        if (key) {
+            inputs[key] = value;
+        }
+    });
+    return inputs;
 }
 
 // Handle SDK Result Callback
@@ -257,21 +290,20 @@ function createResultHandler(transactionId) {
 }
 
 // Launch HyperKYC SDK
-async function launchHyperKYC(workflowId, backendUrl, showLandingPage, userName) {
+async function launchHyperKYC(workflowId, showLandingPage, workflowInputs) {
     try {
         showLoading('Fetching authentication token...');
         logger.info('=== Starting HyperKYC SDK Integration ===');
         logger.info(`Workflow ID: ${workflowId}`);
-        logger.info(`Backend URL: ${backendUrl}`);
         logger.info(`Show Landing Page: ${showLandingPage}`);
-        logger.info(`Name: ${userName}`);
+        logger.info(`Inputs: ${JSON.stringify(workflowInputs)}`);
 
         // Generate unique transaction ID
         const transactionId = generateTransactionId();
         logger.info(`Generated Transaction ID: ${transactionId}`);
 
-        // Fetch auth token from backend
-        const authToken = await fetchAuthToken(backendUrl);
+        // Fetch auth token from backend (relative path — works on localhost & ngrok)
+        const authToken = await fetchAuthToken();
 
         showLoading('Initializing HyperKYC SDK...');
         logger.info('Creating HyperKycConfig instance...');
@@ -284,12 +316,14 @@ async function launchHyperKYC(workflowId, backendUrl, showLandingPage, userName)
             showLandingPage     // Show landing page flag
         );
 
-        // Set workflow inputs (required by workflow configuration)
-        logger.info('Setting workflow inputs...');
-        hyperKycConfig.setInputs({
-            Name: userName
-        });
-        logger.success('Workflow inputs set successfully');
+        // Set workflow inputs (dynamic key-value pairs from user)
+        if (Object.keys(workflowInputs).length > 0) {
+            logger.info('Setting workflow inputs...');
+            hyperKycConfig.setInputs(workflowInputs);
+            logger.success('Workflow inputs set successfully');
+        } else {
+            logger.info('No workflow inputs provided, skipping setInputs');
+        }
 
         logger.success('HyperKycConfig created successfully');
         logger.info('Launching HyperKYC SDK...');
@@ -327,39 +361,45 @@ async function launchHyperKYC(workflowId, backendUrl, showLandingPage, userName)
 // Store config temporarily
 let tempConfig = null;
 
-// Config form submit handler - show name modal
+// Config form submit handler - show inputs modal
 configForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const workflowId = document.getElementById('workflowId').value.trim();
-    const backendUrl = document.getElementById('backendUrl').value.trim();
     const showLandingPage = document.getElementById('showLandingPage').checked;
 
-    if (!workflowId || !backendUrl) {
-        alert('Please fill in all required fields');
+    if (!workflowId) {
+        alert('Please enter a Workflow ID');
         return;
     }
 
     // Store config
-    tempConfig = { workflowId, backendUrl, showLandingPage };
+    tempConfig = { workflowId, showLandingPage };
 
-    // Show name modal
-    showNameModal();
+    // Show inputs modal
+    showInputsModal();
 });
 
-// Name form submit handler - launch SDK
-nameForm.addEventListener('submit', async (e) => {
+// Add input row button
+addInputBtn.addEventListener('click', () => {
+    addInputRow();
+});
+
+// Remove input row (delegated)
+inputsContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-remove')) {
+        removeInputRow(e.target);
+    }
+});
+
+// Inputs form submit handler - launch SDK
+inputsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const userName = nameInput.value.trim();
-
-    if (!userName) {
-        alert('Please enter your name');
-        return;
-    }
+    const workflowInputs = collectInputs();
 
     // Hide modal
-    hideNameModal();
+    hideInputsModal();
 
     // Disable button
     launchBtn.disabled = true;
@@ -371,9 +411,8 @@ nameForm.addEventListener('submit', async (e) => {
     // Launch SDK
     await launchHyperKYC(
         tempConfig.workflowId,
-        tempConfig.backendUrl,
         tempConfig.showLandingPage,
-        userName
+        workflowInputs
     );
 
     // Re-enable button
@@ -382,21 +421,21 @@ nameForm.addEventListener('submit', async (e) => {
 });
 
 // Cancel button handler
-cancelNameBtn.addEventListener('click', () => {
-    hideNameModal();
+cancelInputsBtn.addEventListener('click', () => {
+    hideInputsModal();
 });
 
 // Close modal on overlay click
-nameModal.addEventListener('click', (e) => {
-    if (e.target === nameModal) {
-        hideNameModal();
+inputsModal.addEventListener('click', (e) => {
+    if (e.target === inputsModal) {
+        hideInputsModal();
     }
 });
 
 // Close modal on ESC key
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !nameModal.classList.contains('hidden')) {
-        hideNameModal();
+    if (e.key === 'Escape' && !inputsModal.classList.contains('hidden')) {
+        hideInputsModal();
     }
 });
 

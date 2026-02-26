@@ -1,0 +1,242 @@
+{
+    "properties": {
+        "name": "Video KYC",
+        "description": "Video KYC flow",
+        "sdkVersions": {
+            "mobile": {
+                "maximum": "10.0.0",
+                "minimum": "0.2.0"
+            },
+            "web": {
+                "maximum": "10.0.0",
+                "minimum": "5.0.0"
+            }
+        },
+        "redirectToMobile": "no",
+        "uiConfigSource": "default",
+        "inputsRequired": {
+            "panNumber": "string",
+            "aadhaarName": "string",
+            "aadhaarCreatedDate": "string",
+            "aadhaarImage": "string",
+            "verificationInfo_category_1": "string",
+            "verificationInfo_text_1": "string",
+            "verificationInfo_originalValue_1": "string",
+            "verificationInfo_category_2": "string",
+            "verificationInfo_text_2": "string",
+            "verificationInfo_originalValue_2": "string",
+            "verificationInfo_category_3": "string",
+            "verificationInfo_text_3": "string",
+            "verificationInfo_originalValue_3": "string",
+            "verificationInfo_category_4": "string",
+            "verificationInfo_text_4": "string",
+            "verificationInfo_originalValue_4": "string",
+            "verificationInfo_category_5": "string",
+            "verificationInfo_text_5": "string",
+            "verificationInfo_originalValue_5": "string",
+            "verificationInfo_category_6": "string",
+            "verificationInfo_text_6": "string",
+            "verificationInfo_originalValue_6": "string"
+        },
+        "builtOnBuilder": true,
+        "builder": {
+            "superModuleMetaData": {}
+        },
+        "textConfigSource": {
+            "en": "default"
+        }
+    },
+    "sdkResponse": {
+        "callStatus": "module_videoKYC.callStatus"
+    },
+    "conditions": {
+        "condition_postVerificationInfo": {
+            "if_false": "auto_declined",
+            "if_true": "module_videoKYC",
+            "rule": "(module_verificationInfo.status == 'success')",
+            "name": "condition_postVerificationInfo"
+        },
+        "condition_postVideoKYC": {
+            "if_false": "auto_declined",
+            "if_true": "manualReview",
+            "rule": "(module_videoKYC.callStatus == 'APPROVED')",
+            "name": "condition_postVideoKYC"
+        },
+        "condition_userCheck":{
+            "if_false": "auto_declined",
+            "if_true": "module_verificationInfo",
+            "rule": "(module_videoKycUserGeneration.statusCode == 200)",
+            "name": "condition_postVideoKYC"
+        }
+    },
+    "modules": [
+        {
+            "type": "countries",
+            "subType": "countries",
+            "id": "module_countryPicker",
+            "nextStep": "module_videoKycUserGeneration",
+            "properties": {
+                "countriesSupported": [
+                    "ind"
+                ]
+            },
+            "version": "v1",
+            "next_node_type": {
+                "default": ""
+            },
+            "name": "Countries",
+            "stepId": "countries"
+        },
+        {
+            "type": "api",
+            "subType": "genericApiV1",
+            "id": "module_videoKycUserGeneration",
+            "name": "Video Kyc User Generation",
+            "nextStep": "condition_userCheck",
+            "properties": {
+                "url": "https://india-vcip-demo.hyperverge.co/v2/user",
+                "apiType": "json_post",
+                "headers": {
+                    "x-hv-hide-on-portal": "yes"
+                },
+                "requestBody": {
+                    "userId": "inputs.transactionId",
+                    "pan": {
+                        "number": "inputs.panNumber"
+                    },
+                    "user": {
+                        "name": "inputs.aadhaarName"
+                    },
+                    "aadhaar": {
+                        "createdDate": "inputs.aadhaarCreatedDate",
+                        "name": "inputs.aadhaarName",
+                        "image": "inputs.aadhaarImage"
+                    }
+                },
+                "allowedStatusCodes": [
+                    400,
+                    422,
+                    500,
+                    200,
+                    429
+                ]
+            },
+            "variables": [
+                {
+                    "name": "queryParams",
+                    "path": "response.url"
+                },
+                {
+                    "name": "statusCode",
+                    "path": "response.statusCode"
+                }
+            ],
+            "version": "v1",
+            "next_node_type": {
+                "default": ""
+            },
+            "stepId": "video_kyc_user_generation"
+        },
+        {
+            "type": "api",
+            "subType": "genericApiV1",
+            "id": "module_verificationInfo",
+            "name": "Video Kyc Verification Info",
+            "nextStep": "condition_postVerificationInfo",
+            "properties": {
+                "url": "https://india-vcip-demo.hyperverge.co/verificationInfo",
+                "apiType": "json_post",
+                "headers": {
+                    "x-hv-hide-on-portal": "yes"
+                },
+                "requestBody": {
+                    "userId": "inputs.transactionId",
+                    "verificationInfo": [
+                        {
+                            "category": "inputs.verificationInfo_category_1",
+                            "text": "inputs.verificationInfo_text_1",
+                            "originalValue": "inputs.verificationInfo_originalValue_1"
+                        },
+                        {
+                            "category": "inputs.verificationInfo_category_2",
+                            "text": "inputs.verificationInfo_text_2",
+                            "originalValue": "inputs.verificationInfo_originalValue_2"
+                        },
+                        {
+                            "category": "inputs.verificationInfo_category_3",
+                            "text": "inputs.verificationInfo_text_3",
+                            "originalValue": "inputs.verificationInfo_originalValue_3"
+                        },
+                        {
+                            "category": "inputs.verificationInfo_category_4",
+                            "text": "inputs.verificationInfo_text_4",
+                            "originalValue": "inputs.verificationInfo_originalValue_4"
+                        },
+                        {
+                            "category": "inputs.verificationInfo_category_5",
+                            "text": "inputs.verificationInfo_text_5",
+                            "originalValue": "inputs.verificationInfo_originalValue_5"
+                        },
+                        {
+                            "category": "inputs.verificationInfo_category_6",
+                            "text": "inputs.verificationInfo_text_6",
+                            "originalValue": "inputs.verificationInfo_originalValue_6"
+                        }
+                    ]
+                }
+            },
+            "variables": [
+                {
+                    "name": "status",
+                    "path": "response.status"
+                },
+                {
+                    "name": "statusCode",
+                    "path": "response.statusCode"
+                }
+            ],
+            "version": "v1",
+            "next_node_type": {
+                "default": ""
+            },
+            "stepId": "video_kyc_verification_info"
+        },
+        {
+            "type": "webview",
+            "subType": "genericWebviewV1",
+            "id": "module_videoKYC",
+            "nextStep": "condition_postVideoKYC",
+            "properties": {
+                "url": "https://india-vcip-customer-demo.hyperverge.co/waiting-room",
+                "openAsIFrame": true,
+                "permissions": [
+                    "camera",
+                    "microphone",
+                    "geolocation"
+                ],
+                "exitOnCancel": "yes",
+                "data": {
+                    "queryParams": {
+                        "params": "module_videoKycUserGeneration.queryParams"
+                    }
+                }
+            },
+            "variables": [
+                {
+                    "name": "callStatus",
+                    "path": "response.callStatus"
+                },
+                {
+                    "name": "endReason",
+                    "path": "response.callEndedReason"
+                }
+            ],
+            "version": "v1",
+            "next_node_type": {
+                "default": ""
+            },
+            "name": "Video KYC waiting room and Video Call",
+            "stepId": "digilocker_flow"
+        }
+    ]
+}

@@ -6,7 +6,7 @@
     <title>HyperKYC Web SDK Integration</title>
     <link rel="stylesheet" href="styles.css">
     <!-- HyperVerge Web SDK - Latest Version 10.0.0 -->
-    <script src="https://hv-web-sdk-cdn.hyperverge.co/hyperverge-web-sdk@10.0.0/src/sdk.min.js"></script>
+    <script src="https://hv-web-sdk-cdn.hyperverge.co/hyperverge-web-sdk@10.3.0/src/sdk.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -15,26 +15,24 @@
             <p class="subtitle">Complete your KYC verification securely</p>
         </header>
 
-        <!-- Name Input Modal -->
-        <div id="nameModal" class="modal hidden">
+        <!-- Workflow Inputs Modal -->
+        <div id="inputsModal" class="modal hidden">
             <div class="modal-overlay"></div>
             <div class="modal-content">
-                <h3>Enter Your Details</h3>
-                <p class="modal-subtitle">Please provide your name to begin verification</p>
-                <form id="name-form">
-                    <div class="modal-input-group">
-                        <label for="nameInput">Full Name</label>
-                        <input
-                            type="text"
-                            id="nameInput"
-                            placeholder="Enter your full name"
-                            required
-                            autocomplete="name"
-                        />
+                <h3>Workflow Inputs</h3>
+                <p class="modal-subtitle">Add the key-value inputs required by your workflow</p>
+                <form id="inputs-form">
+                    <div id="inputsContainer">
+                        <div class="input-row">
+                            <input type="text" class="input-key" placeholder="Key (e.g. dbImage)" required />
+                            <input type="text" class="input-value" placeholder="Value (e.g. https://...)" required />
+                            <button type="button" class="btn-remove" title="Remove">&times;</button>
+                        </div>
                     </div>
+                    <button type="button" id="addInputBtn" class="btn btn-add">+ Add Input</button>
                     <div class="modal-actions">
-                        <button type="button" id="cancelNameBtn" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" id="submitNameBtn" class="btn btn-primary">Continue</button>
+                        <button type="button" id="cancelInputsBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" id="submitInputsBtn" class="btn btn-primary">Launch</button>
                     </div>
                 </form>
             </div>
@@ -49,7 +47,7 @@
                         <input
                             type="text"
                             id="workflowId"
-                            value="secure_onboard_v7_sureguard_life_insurance"
+                            value="OCR_flow"
                             placeholder="Enter Workflow ID"
                             required
                         />
@@ -60,7 +58,7 @@
                         <input
                             type="text"
                             id="backendUrl"
-                            value="https://quaquaversal-battlemented-clarine.ngrok-free.dev"
+                            value="http://localhost:3000"
                             placeholder="Enter Backend URL"
                             required
                         />
